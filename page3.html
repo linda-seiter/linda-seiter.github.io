@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<head>
+    <style>
+        #result_table {
+            border-spacing: 0px;
+            display: none; 
+        }
+        #result_table th, td{
+            border: 1px solid gray;
+            vertical-align: top;
+            padding: 10px;
+           
+        }
+        #expected, #actual { min-width:10em;}
+        .correct {background-color: lightgreen; }
+        .incorrect{background-color: lightcoral; }
+    </style>
+</head>
+<body>
+    <p>Add a second statement to print "bye".</p>
+    <div id="editor"></div>
+    <button id="run_button">Run</button>
+    
+    <table id="result_table">
+    <tr>
+        <th>Result</th>
+        <th>Expected</th>
+        <th>Actual</th>
+    </tr>
+    <tr>
+        <td id="result"></td>
+        <td id="expected"></td>
+        <td id="actual"></td>
+    </tr>
+    </table>
+    <script src="editor2.bundle.js"></script>
+</body>
+</html>

@@ -24538,23 +24538,23 @@
 
    let logBackup = console.log;
    let assertBackup = console.assert;
-   let logMessages = [];
+   let consoleMessages = [];
 
    console.log = function () {
-     logMessages.push.apply(logMessages, arguments);
+     consoleMessages.push.apply(consoleMessages, arguments);
      logBackup.apply(console, arguments);
    };
 
    console.assert = function () {
      if (!arguments[0]) {
-       logMessages.push(arguments[1]);
+       consoleMessages.push(arguments[1]);
        assertBackup.apply(console, arguments);
      }
    };
 
-   document.querySelector("#run_button").addEventListener("click", function () {
+   document.querySelector("#run").addEventListener("click", function () {
      console.clear();
-     logMessages = [];
+     consoleMessages = [];
      let expectedMessages = ["hi", "bye"];
 
      try {
@@ -24563,23 +24563,21 @@
      } catch (err) {
        console.error(err);
      } finally {
-       let actualContents = logMessages.join("<br>");
+       let actualContents = consoleMessages.join("<br>");
        document.querySelector("#actual").innerHTML = actualContents;
 
        let expectedContents = expectedMessages.join("<br>");
        document.querySelector("#expected").innerHTML = expectedContents;
 
        document.querySelector("#result_table").style.display = "block";
-       let result = document.querySelector("#result");
 
-       if (expectedMessages.toString() == logMessages.toString()) {
-         result.textContent = "CORRECT";
-         result.classList.add("correct");
-         result.classList.remove("incorrect");
+       let status = document.querySelector("#status");
+       if (expectedMessages.toString() == consoleMessages.toString()) {
+         status.textContent = "CORRECT";
+         status.style.backgroundColor = "lightgreen";
        } else {
-         result.textContent = "INCORRECT";
-         result.classList.add("incorrect");
-         result.classList.remove("correct");
+         status.textContent = "INCORRECT";
+         status.style.backgroundColor = "lightcoral";
        }
      }
    });

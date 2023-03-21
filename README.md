@@ -5,3 +5,5 @@
 [Codemirror Example #2 - Compare expected vs actual output](page2.html)
 
 [Codemirror Example #3 - Check for failed assertions](page3.html)
+
+[Codemirror Example #4 - Linter(page4.html)

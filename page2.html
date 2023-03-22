@@ -1,34 +1,27 @@
 <!DOCTYPE html>
 <head>
-    <style>
-        #result_table {
-            border-spacing: 0px;
-            display: none; 
-        }
-        #result_table th, td{
-            border: 1px solid gray;
-            vertical-align: top;
-            padding: 10px;
-           
-        }
-    </style>
+    <meta charset="utf8" />
+    <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
-    <p>Add a second statement to print "bye".</p>
-    <div id="editor"></div>
-    <button id="run">Run</button> 
-    <table id="result_table">
-    <tr>
-        <th>Result</th>
-        <th>Expected</th>
-        <th>Actual</th>
-    </tr>
-    <tr>
-        <td id="status"></td>
-        <td id="expected"></td>
-        <td id="actual"></td>
-    </tr>
-    </table>
-    <script src="editor2.bundle.js"></script>
+
+<p>Add a second statement to print "bye".</p>
+    
+<div id="question" data-question-type="compare_solution">
+
+<textarea id="code">
+console.log("hi");
+</textarea>
+
+<textarea id="solution">
+console.log("hi");
+console.log("bye");
+</textarea>
+
+</div>
+
+<script src="editor.bundle.js"></script>
+
 </body>
 </html>

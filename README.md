@@ -6,4 +6,4 @@
 
 [Codemirror Example #3 - Check for failed assertions](page3.html)
 
-[Codemirror Example #4 - Linter(page4.html)
+[Codemirror Example #4 - Linter](page4.html)

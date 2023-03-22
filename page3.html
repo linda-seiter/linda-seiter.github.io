@@ -1,32 +1,28 @@
 <!DOCTYPE html>
 <head>
-    <style>
-        #result_table {
-            border-spacing: 0px;
-            display: none; 
-        }
-        #result_table th, td{
-            border: 1px solid gray;
-            vertical-align: top;
-            padding: 10px;
-           
-        }
-    </style>
+    <meta charset="utf8" />
+    <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
-    <p>There is an error in the function.  Fix the error so the assertions pass.</p>
-    <div id="editor"></div>
-    <button id="run">Run</button> 
-    <table id="result_table">
-    <tr>
-        <th>Result</th>
-        <th>Failed Assertions</th>
-    </tr>
-    <tr>
-        <td id="status"></td>
-        <td id="actual"></td>
-    </tr>
-    </table>
-    <script src="editor3.bundle.js"></script>
+
+<p>There is an error in the function.  Fix the error so the assertions pass.</p>
+
+<div id="question" data-question-type="check_assertion">
+
+<textarea id="code">
+function isEven(num) {
+    return num / 2 == 0;
+}
+
+// Test cases
+console.assert( isEven(8), "isEven(8) failed");
+console.assert( !isEven(9), "!isEven(9) failed");
+</textarea>
+
+</div>
+
+<script src="editor.bundle.js"></script>
+
 </body>
 </html>

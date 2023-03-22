@@ -1,4 +1,27 @@
 <!DOCTYPE html>
-<meta charset="utf8" />
-<p>Fix the error in the code.</p>
-<script src="editor4.bundle.js"></script>
+<head>
+    <meta charset="utf8" />
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<p>Fix the code so the error goes away.</p>
+
+<div id="question" data-question-type="compare_solution" data-lint="true">
+<textarea id="code">
+let x = 7;
+consolelog(x);
+</textarea>
+
+<textarea id="solution">
+let x = 7;
+console.log(x);
+</textarea>
+
+</div>
+
+<script src="editor.bundle.js"></script>
+
+</body>
+</html>

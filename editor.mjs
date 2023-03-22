@@ -3,11 +3,15 @@ import { javascript, esLint } from "@codemirror/lang-javascript";
 import { lintGutter, linter } from "@codemirror/lint";
 import Linter from "eslint4b-prebuilt";
 
+// spy on console messages
 let logBackup = console.log;
 let assertBackup = console.assert;
 let consoleMessages = [];
+
+// update DOM and create Codemirror editor object
 let editor = setupEditor();
 
+// event handler for Run button
 document
   .querySelector("#question > button")
   .addEventListener("click", clickHandler());
@@ -79,48 +83,51 @@ function runCode(code) {
     Function(code)(window);
   } catch (err) {
     console.error(err);
+  } finally {
+    return consoleMessages;
   }
 }
 
 function showOutput() {
-  runCode(editor.state.doc.toString());
   let table = document.querySelector("#question > table");
-  let resultString = consoleMessages.join("<br>");
+
+  let actualMessages = runCode(editor.state.doc.toString());
+  let actualHTML = actualMessages.join("<br>");
+
   if (table.rows.length == 0) {
     table.insertRow(0).insertCell(0).innerHTML = "Output";
-    table.insertRow(1).insertCell(0).innerHTML = resultString;
+    table.insertRow(1).insertCell(0).innerHTML = actualHTML;
     table.rows[0].cells[0].classList.add("correct");
   } else {
-    table.rows[1].cells[0].innerHTML = resultString;
+    table.rows[1].cells[0].innerHTML = actualHTML;
   }
 }
 
 function compareSolution() {
-  runCode(editor.state.doc.toString());
   let table = document.querySelector("#question > table");
-  let actualMessages = consoleMessages;
 
-  consoleMessages = [];
-  runCode(document.getElementById("solution").value);
-  let solutionMessages = consoleMessages;
+  let actualMessages = runCode(editor.state.doc.toString());
+  let actualHTML = actualMessages.join("<br>");
 
-  let solution = solutionMessages.join("<br>");
-  let actual = actualMessages.join("<br>");
-  let status = solution == actual ? "Correct" : "Incorrect";
+  let solutionMessages = runCode(document.getElementById("solution").value);
+  let solutionHTML = solutionMessages.join("<br>");
+
+  let status = solutionHTML == actualHTML ? "Correct" : "Incorrect";
+
   if (table.rows.length == 0) {
     table.insertRow(0).insertCell(0).innerHTML = "Status";
     table.insertRow(1).insertCell(0).innerHTML = status;
     table.rows[0].insertCell().innerHTML = "Expected";
-    table.rows[1].insertCell().innerHTML = solution;
+    table.rows[1].insertCell().innerHTML = solutionHTML;
     table.rows[0].insertCell().innerHTML = "Actual";
-    table.rows[1].insertCell().innerHTML = actual;
+    table.rows[1].insertCell().innerHTML = actualHTML;
   } else {
     table.rows[1].cells[0].innerHTML = status;
-    table.rows[1].cells[1].innerHTML = solution;
-    table.rows[1].cells[2].innerHTML = actual;
+    table.rows[1].cells[1].innerHTML = solutionHTML;
+    table.rows[1].cells[2].innerHTML = actualHTML;
   }
   let classList = table.rows[1].cells[2].classList;
-  if (solution === actual) {
+  if (solutionHTML == actualHTML) {
     classList.add("correct");
     classList.remove("incorrect");
   } else {
@@ -130,21 +137,26 @@ function compareSolution() {
 }
 
 function checkAssertion() {
-  runCode(editor.state.doc.toString());
   let table = document.querySelector("#question > table");
-  let resultString = consoleMessages.join("<br>");
+
+  let actualMessages = runCode(editor.state.doc.toString());
+  let actualHTML = actualMessages.join("<br>");
+
   let status = consoleMessages.length == 0 ? "Correct" : "Incorrect";
+
   if (table.rows.length == 0) {
     table.insertRow(0).insertCell(0).innerHTML = "Status";
     table.insertRow(1).insertCell(0).innerHTML = status;
     table.rows[0].insertCell().innerHTML = "Failed Assertions";
-    table.rows[1].insertCell().innerHTML = resultString;
+    table.rows[1].insertCell().innerHTML = actualHTML;
   } else {
     table.rows[1].cells[0].innerHTML = status;
-    table.rows[1].cells[1].innerHTML = resultString;
+    table.rows[1].cells[1].innerHTML = actualHTML;
   }
+
   let classList = table.rows[1].cells[0].classList;
-  if (consoleMessages.length == 0) {
+
+  if (actualMessages.length == 0) {
     classList.add("correct");
     classList.remove("incorrect");
   } else {

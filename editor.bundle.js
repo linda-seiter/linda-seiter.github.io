@@ -24798,26 +24798,13 @@
    let logBackup = console.log;
    let assertBackup = console.assert;
    let consoleMessages = [];
-   let extensions = [basicSetup, javascript()];
-
-   if (document.getElementById("question").dataset.lint == "true") {
-     extensions.push(linter(esLint(new zN())));
-     extensions.push(lintGutter());
-   }
-
-   setupDom();
-
-   let editor = new EditorView({
-     extensions: extensions,
-     parent: document.querySelector("#question > div"),
-     doc: document.getElementById("code").value,
-   });
+   let editor = setupEditor();
 
    document
      .querySelector("#question > button")
      .addEventListener("click", clickHandler());
 
-   function setupDom() {
+   function setupEditor() {
      let question = document.getElementById("question");
      question.append(document.createElement("div"));
      let button = document.createElement("button");
@@ -24825,6 +24812,18 @@
      question.append(button);
      question.append(document.createElement("table"));
      document.getElementById("code").style.display = "none";
+
+     let extensions = [basicSetup, javascript()];
+     if (document.getElementById("question").dataset.lint == "true") {
+       extensions.push(linter(esLint(new zN())));
+       extensions.push(lintGutter());
+     }
+
+     return new EditorView({
+       extensions: extensions,
+       parent: document.querySelector("#question > div"),
+       doc: document.getElementById("code").value,
+     });
    }
 
    function clickHandler() {
@@ -24832,18 +24831,15 @@
      switch (questionType) {
        case "show_output":
          return function () {
-           runCode(editor.state.doc.toString());
            showOutput();
          };
        case "compare_solution":
          document.getElementById("solution").style.display = "none";
          return function () {
-           runCode(editor.state.doc.toString());
            compareSolution();
          };
        case "check_assertion":
          return function () {
-           runCode(editor.state.doc.toString());
            checkAssertion();
          };
        default:
@@ -24876,6 +24872,7 @@
    }
 
    function showOutput() {
+     runCode(editor.state.doc.toString());
      let table = document.querySelector("#question > table");
      let resultString = consoleMessages.join("<br>");
      if (table.rows.length == 0) {
@@ -24888,6 +24885,7 @@
    }
 
    function compareSolution() {
+     runCode(editor.state.doc.toString());
      let table = document.querySelector("#question > table");
      let actualMessages = consoleMessages;
 
@@ -24921,6 +24919,7 @@
    }
 
    function checkAssertion() {
+     runCode(editor.state.doc.toString());
      let table = document.querySelector("#question > table");
      let resultString = consoleMessages.join("<br>");
      let status = consoleMessages.length == 0 ? "Correct" : "Incorrect";

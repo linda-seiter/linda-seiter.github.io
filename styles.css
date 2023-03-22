@@ -1,0 +1,22 @@
+td,
+th {
+  border: 1px solid gray;
+  vertical-align: top;
+  padding: 10px;
+}
+
+table {
+  border-spacing: 0px;
+}
+
+.correct {
+  background-color: lightgreen;
+}
+
+.incorrect {
+  background-color: lightcoral;
+}
+
+button {
+  margin: 5px 1px;
+}

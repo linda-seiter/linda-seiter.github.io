@@ -24800,10 +24800,10 @@
    let assertBackup = console.assert;
    let consoleMessages = [];
 
-   // add DOM objects and create Codemirror editor object
+   // update DOM and create Codemirror editor object
    let editor = setupEditor();
 
-   // event handler for editor Run button
+   // event handler for Run button
    document
      .querySelector("#question > button")
      .addEventListener("click", clickHandler());
@@ -24886,7 +24886,6 @@
      if (table.rows.length == 0) {
        table.insertRow(0).insertCell(0).innerHTML = "Output";
        table.insertRow(1).insertCell(0).innerHTML = actualHTML;
-       table.rows[0].cells[0].classList.add("correct");
      } else {
        table.rows[1].cells[0].innerHTML = actualHTML;
      }
@@ -24915,7 +24914,8 @@
        table.rows[1].cells[1].innerHTML = solutionHTML;
        table.rows[1].cells[2].innerHTML = actualHTML;
      }
-     let classList = table.rows[1].cells[2].classList;
+
+     let classList = table.rows[1].cells[0].classList;
      if (solutionHTML == actualHTML) {
        classList.add("correct");
        classList.remove("incorrect");

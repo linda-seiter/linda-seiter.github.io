@@ -3,34 +3,41 @@ import { javascript, esLint } from "@codemirror/lang-javascript";
 import { lintGutter, linter } from "@codemirror/lint";
 import Linter from "eslint4b-prebuilt";
 
-// spy on console messages
-let logBackup = console.log;
-let assertBackup = console.assert;
-let consoleMessages = [];
-
-// update DOM and create Codemirror editor object
+// CodeMirror editor object
 let editor = setupEditor();
 
-// event handler for Run button
+// Code execution button
 document
   .querySelector("#question > button")
   .addEventListener("click", clickHandler());
 
+// Spy on console messages
+let logBackup = console.log;
+let assertBackup = console.assert;
+let errorBackup = console.error;
+let consoleMessages = [];
+
+// Add editor elements (div, button, table) and create Codemirror editor object
 function setupEditor() {
+  // Hide textArea containing the code
+  document.getElementById("code").style.display = "none";
+
+  // Add CodeMirror editor div, run button, and result table
   let question = document.getElementById("question");
   question.append(document.createElement("div"));
   let button = document.createElement("button");
   button.textContent = "Run";
   question.append(button);
   question.append(document.createElement("table"));
-  document.getElementById("code").style.display = "none";
 
+  // Check if editor should include linter
   let extensions = [basicSetup, javascript()];
-  if (document.getElementById("question").dataset.lint == "true") {
+  if (question.dataset.lint == "true") {
     extensions.push(linter(esLint(new Linter())));
     extensions.push(lintGutter());
   }
 
+  // Return CodeMirror editor object
   return new EditorView({
     extensions: extensions,
     parent: document.querySelector("#question > div"),
@@ -38,6 +45,7 @@ function setupEditor() {
   });
 }
 
+// Assign button callback based on question type
 function clickHandler() {
   let questionType = document.getElementById("question").dataset.questionType;
   switch (questionType) {
@@ -47,6 +55,7 @@ function clickHandler() {
       };
       break;
     case "compare_solution":
+      // Hide the solution textarea
       document.getElementById("solution").style.display = "none";
       return function () {
         compareSolution();
@@ -59,16 +68,18 @@ function clickHandler() {
       break;
     default:
       return function () {
-        console.error("unknown question type " + questionType);
+        console.error("Invalid question type " + questionType);
       };
   }
 }
 
+// Capture log messages
 console.log = function () {
   consoleMessages.push.apply(consoleMessages, arguments);
   logBackup.apply(console, arguments);
 };
 
+// Capture assert messages
 console.assert = function () {
   if (!arguments[0]) {
     consoleMessages.push(arguments[1]);
@@ -76,6 +87,15 @@ console.assert = function () {
   }
 };
 
+// Capture error messages
+console.error = function () {
+  if (!arguments[0]) {
+    consoleMessages.push(arguments[1]);
+    errorBackup.apply(console, arguments);
+  }
+};
+
+// Run the code and return console messages
 function runCode(code) {
   console.clear();
   consoleMessages = [];
@@ -88,79 +108,92 @@ function runCode(code) {
   }
 }
 
+// Convert array of strings to text nodes and line break elements
+function arrayToTextNodes(parent, messages) {
+  while (parent.firstChild) {
+    parent.removeChild(parent.firstChild);
+  }
+  for (var i = 0; i < messages.length; i++) {
+    parent.appendChild(document.createTextNode(messages[i]));
+    parent.appendChild(document.createElement("br"));
+  }
+}
+
+// Run editor code and display console output
 function showOutput() {
   let table = document.querySelector("#question > table");
-
   let actualMessages = runCode(editor.state.doc.toString());
-  let actualHTML = actualMessages.join("<br>");
 
   if (table.rows.length == 0) {
-    table.insertRow(0).insertCell(0).innerHTML = "Output";
-    table.insertRow(1).insertCell(0).innerHTML = actualHTML;
-  } else {
-    table.rows[1].cells[0].innerHTML = actualHTML;
+    setupTable(table, ["Output"]);
+    setStatusClass(true, table.rows[0].cells[0]);
   }
+
+  arrayToTextNodes(table.rows[1].cells[0], actualMessages);
 }
 
+// Compare editor code output vs solution code output
 function compareSolution() {
   let table = document.querySelector("#question > table");
-
   let actualMessages = runCode(editor.state.doc.toString());
-  let actualHTML = actualMessages.join("<br>");
-
   let solutionMessages = runCode(document.getElementById("solution").value);
-  let solutionHTML = solutionMessages.join("<br>");
 
-  let status = solutionHTML == actualHTML ? "Correct" : "Incorrect";
+  let correct = actualMessages.toString() == solutionMessages.toString();
+  let status = correct ? "Correct" : "Incorrect";
 
   if (table.rows.length == 0) {
-    table.insertRow(0).insertCell(0).innerHTML = "Status";
-    table.insertRow(1).insertCell(0).innerHTML = status;
-    table.rows[0].insertCell().innerHTML = "Expected";
-    table.rows[1].insertCell().innerHTML = solutionHTML;
-    table.rows[0].insertCell().innerHTML = "Actual";
-    table.rows[1].insertCell().innerHTML = actualHTML;
-  } else {
-    table.rows[1].cells[0].innerHTML = status;
-    table.rows[1].cells[1].innerHTML = solutionHTML;
-    table.rows[1].cells[2].innerHTML = actualHTML;
+    setupTable(table, ["Status", "Expected", "Actual"]);
   }
 
-  let classList = table.rows[1].cells[0].classList;
-  if (solutionHTML == actualHTML) {
-    classList.add("correct");
-    classList.remove("incorrect");
-  } else {
-    classList.add("incorrect");
-    classList.remove("correct");
-  }
+  arrayToTextNodes(table.rows[1].cells[0], [status]);
+  arrayToTextNodes(table.rows[1].cells[1], solutionMessages);
+  arrayToTextNodes(table.rows[1].cells[2], actualMessages);
+
+  setStatusClass(correct, table.rows[1].cells[0]);
 }
 
+// run editor code and check console output for failed assertions
 function checkAssertion() {
   let table = document.querySelector("#question > table");
 
   let actualMessages = runCode(editor.state.doc.toString());
-  let actualHTML = actualMessages.join("<br>");
 
-  let status = consoleMessages.length == 0 ? "Correct" : "Incorrect";
+  let correct = actualMessages.length == 0;
+  let status = correct ? "Correct" : "Incorrect";
 
   if (table.rows.length == 0) {
-    table.insertRow(0).insertCell(0).innerHTML = "Status";
-    table.insertRow(1).insertCell(0).innerHTML = status;
-    table.rows[0].insertCell().innerHTML = "Failed Assertions";
-    table.rows[1].insertCell().innerHTML = actualHTML;
-  } else {
-    table.rows[1].cells[0].innerHTML = status;
-    table.rows[1].cells[1].innerHTML = actualHTML;
+    setupTable(table, ["Status", "Failed Assertions"]);
   }
 
-  let classList = table.rows[1].cells[0].classList;
+  arrayToTextNodes(table.rows[1].cells[0], [status]);
+  arrayToTextNodes(table.rows[1].cells[1], actualMessages);
 
-  if (actualMessages.length == 0) {
-    classList.add("correct");
-    classList.remove("incorrect");
+  setStatusClass(correct, table.rows[1].cells[0]);
+}
+
+function setStatusClass(correct, element) {
+  if (correct) {
+    element.classList.add("correct");
+    element.classList.remove("incorrect");
   } else {
-    classList.add("incorrect");
-    classList.remove("correct");
+    element.classList.add("incorrect");
+    element.classList.remove("correct");
+  }
+}
+
+// Table with 2 rows to display headings and results
+function setupTable(table, rowHeadings) {
+  table.insertRow(0);
+  table.insertRow(1);
+
+  for (let key of rowHeadings) {
+    //add th with heading text in row 0
+    let th = document.createElement("th");
+    let text = document.createTextNode(key);
+    th.appendChild(text);
+    table.rows[0].appendChild(th);
+
+    //add empty td in row 1
+    table.rows[1].appendChild(document.createElement("td"));
   }
 }

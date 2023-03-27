@@ -4,7 +4,7 @@ import { lintGutter, linter } from "@codemirror/lint";
 import Linter from "eslint4b-prebuilt";
 
 // CodeMirror editor object
-let editor = setupEditor();
+const editor = setupEditor();
 
 // Code execution button
 document
@@ -12,9 +12,9 @@ document
   .addEventListener("click", clickHandler());
 
 // Spy on console messages
-let logBackup = console.log;
-let assertBackup = console.assert;
-let errorBackup = console.error;
+const logBackup = console.log;
+const assertBackup = console.assert;
+const errorBackup = console.error;
 let consoleMessages = [];
 
 // Add editor elements (div, button, table) and create Codemirror editor object
@@ -23,15 +23,15 @@ function setupEditor() {
   document.getElementById("code").style.display = "none";
 
   // Add CodeMirror editor div, run button, and result table
-  let question = document.getElementById("question");
+  const question = document.getElementById("question");
   question.append(document.createElement("div"));
-  let button = document.createElement("button");
+  const button = document.createElement("button");
   button.textContent = "Run";
   question.append(button);
   question.append(document.createElement("table"));
 
   // Check if editor should include linter
-  let extensions = [basicSetup, javascript()];
+  const extensions = [basicSetup, javascript()];
   if (question.dataset.lint == "true") {
     extensions.push(linter(esLint(new Linter())));
     extensions.push(lintGutter());
@@ -47,7 +47,7 @@ function setupEditor() {
 
 // Assign button callback based on question type
 function clickHandler() {
-  let questionType = document.getElementById("question").dataset.questionType;
+  const questionType = document.getElementById("question").dataset.questionType;
   switch (questionType) {
     case "show_output":
       return function () {
@@ -121,8 +121,8 @@ function arrayToTextNodes(parent, messages) {
 
 // Run editor code and display console output
 function showOutput() {
-  let table = document.querySelector("#question > table");
-  let actualMessages = runCode(editor.state.doc.toString());
+  const table = document.querySelector("#question > table");
+  const actualMessages = runCode(editor.state.doc.toString());
 
   if (table.rows.length == 0) {
     setupTable(table, ["Output"]);
@@ -134,12 +134,12 @@ function showOutput() {
 
 // Compare editor code output vs solution code output
 function compareSolution() {
-  let table = document.querySelector("#question > table");
-  let actualMessages = runCode(editor.state.doc.toString());
-  let solutionMessages = runCode(document.getElementById("solution").value);
+  const table = document.querySelector("#question > table");
+  const actualMessages = runCode(editor.state.doc.toString());
+  const solutionMessages = runCode(document.getElementById("solution").value);
 
-  let correct = actualMessages.toString() == solutionMessages.toString();
-  let status = correct ? "Correct" : "Incorrect";
+  const correct = actualMessages.toString() == solutionMessages.toString();
+  const status = correct ? "Correct" : "Incorrect";
 
   if (table.rows.length == 0) {
     setupTable(table, ["Status", "Expected", "Actual"]);
@@ -154,12 +154,12 @@ function compareSolution() {
 
 // run editor code and check console output for failed assertions
 function checkAssertion() {
-  let table = document.querySelector("#question > table");
+  const table = document.querySelector("#question > table");
 
-  let actualMessages = runCode(editor.state.doc.toString());
+  const actualMessages = runCode(editor.state.doc.toString());
 
-  let correct = actualMessages.length == 0;
-  let status = correct ? "Correct" : "Incorrect";
+  const correct = actualMessages.length == 0;
+  const status = correct ? "Correct" : "Incorrect";
 
   if (table.rows.length == 0) {
     setupTable(table, ["Status", "Failed Assertions"]);
